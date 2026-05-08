@@ -179,7 +179,12 @@ def _dedupe_concern_events(events: list[dict]) -> list[dict]:
 
 def _frame_url(frame_path: str, base_url: str) -> str:
     normalized_path = frame_path.replace("\\", "/").lstrip("/")
-    if normalized_path.startswith("frames/"):
+    parts = normalized_path.split("/")
+    if "inspections" in parts and "frames" in parts:
+        inspection_index = parts.index("inspections")
+        if len(parts) > inspection_index + 2:
+            normalized_path = f"{parts[inspection_index + 1]}/{parts[-1]}"
+    elif normalized_path.startswith("frames/"):
         normalized_path = normalized_path.removeprefix("frames/")
 
     return f"{base_url.rstrip('/')}/frames/{normalized_path}"

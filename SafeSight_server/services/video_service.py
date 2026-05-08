@@ -8,7 +8,8 @@ from uuid import uuid4
 import cv2
 from fastapi import UploadFile
 
-from core.config import BASE_DIR, FRAMES_DIR, UPLOAD_DIR, ensure_storage_dirs
+from core.config import BASE_DIR, UPLOAD_DIR, ensure_storage_dirs
+from services.inspection_service import create_inspection, get_inspection_frames_dir, save_metadata
 
 
 ALLOWED_VIDEO_EXTENSIONS = {".mp4"}
@@ -37,6 +38,17 @@ def save_uploaded_video(file: UploadFile) -> dict[str, str]:
     finally:
         file.file.close()
 
+    create_inspection(video_id, original_name)
+    save_metadata(
+        video_id,
+        {
+            "filename": stored_filename,
+            "stored_filename": stored_filename,
+            "upload_path": _relative_path(destination),
+            "status": "uploaded",
+        },
+    )
+
     return {
         "video_id": video_id,
         "filename": stored_filename,
@@ -50,14 +62,25 @@ def find_uploaded_video(video_id: str) -> Path | None:
 
 
 def extract_frames(video_id: str, video_path: Path) -> list[dict[str, str | float]]:
-    video_frames_dir = FRAMES_DIR / video_id
+    video_frames_dir = get_inspection_frames_dir(video_id)
     metadata = extract_frames_auto(video_path, video_frames_dir)
+    save_metadata(
+        video_id,
+        {
+            "duration_seconds": metadata["duration_seconds"],
+            "fps": metadata["fps"],
+            "total_frame_count": metadata["total_frame_count"],
+            "sample_interval_seconds": metadata["sample_interval_seconds"],
+            "frames_extracted": metadata["frames_extracted"],
+            "frames_path": _relative_path(video_frames_dir),
+        },
+    )
 
     return [
         {
             "timestamp": _format_timestamp(float(frame["timestamp_seconds"])),
             "timestamp_seconds": float(frame["timestamp_seconds"]),
-            "frame_path": str(frame["path"]),
+            "frame_path": f"frames/{video_id}/{Path(str(frame['path'])).name}",
         }
         for frame in metadata["frames"]
     ]

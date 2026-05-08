@@ -25,9 +25,11 @@ SafeSight_server/models/*.pt
 SafeSight_server/uploads/*
 SafeSight_server/frames/*
 SafeSight_server/events/*
+SafeSight_server/storage/inspections/*
 !SafeSight_server/uploads/.gitkeep
 !SafeSight_server/frames/.gitkeep
 !SafeSight_server/events/.gitkeep
+!SafeSight_server/storage/inspections/.gitkeep
 
 # Downloaded datasets
 download_dataset/construction-site-video-dataset/

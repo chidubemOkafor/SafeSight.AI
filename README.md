@@ -17,6 +17,7 @@ The backend accepts `.mp4` uploads, extracts frames automatically, runs a YOLO s
 - Add risk, explanation, and recommendation for safety violations.
 - Serve evidence frames through HTTP.
 - Ask natural-language questions about safety concerns.
+- Persist inspection history as JSON so old inspections can be loaded later.
 
 ## Project Structure
 
@@ -30,11 +31,21 @@ SafeSight/
     models/
       best.pt
     uploads/
-    frames/
-    events/
+    storage/
+      inspections/
+        index.json
+        {video_id}/
+          metadata.json
+          events.json
+          report.json
+          qa_history.json
+          frames/
     .env
     requirements.txt
   SafeSight_client/
+    src/
+    package.json
+    .env.example
   download_dataset/
   PROJECT_OVERVIEW.md
 ```
@@ -92,6 +103,41 @@ Interactive API docs:
 http://127.0.0.1:8000/docs
 ```
 
+OpenAPI JSON:
+
+```text
+http://127.0.0.1:8000/openapi.json
+```
+
+Use `/docs` as the Swagger documentation for the frontend developer. It includes request bodies, response schemas, endpoint descriptions, and evidence-frame image URLs.
+
+## Frontend Setup
+
+From PowerShell:
+
+```powershell
+cd C:\Users\Elitebook\Documents\github\hackathon\SafeSight\SafeSight_client
+npm install
+```
+
+Optional frontend environment override:
+
+```env
+NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:8000
+```
+
+Run the Next.js app:
+
+```powershell
+npm run dev
+```
+
+The frontend runs at:
+
+```text
+http://localhost:3000
+```
+
 ## API Endpoints
 
 ```text
@@ -100,6 +146,9 @@ POST /upload
 POST /inspect/{video_id}
 GET  /events/{video_id}
 POST /ask/{video_id}
+GET  /inspections
+GET  /inspections/{video_id}
+DELETE /inspections/{video_id}
 GET  /frames/{video_id}/{frame_name}.jpg
 ```
 
@@ -149,7 +198,9 @@ curl.exe -X POST http://127.0.0.1:8000/inspect/abc123
 This extracts frames, runs YOLO, and writes:
 
 ```text
-SafeSight_server/events/abc123.json
+SafeSight_server/storage/inspections/abc123/events.json
+SafeSight_server/storage/inspections/abc123/report.json
+SafeSight_server/storage/inspections/abc123/frames/
 ```
 
 ### 4. Get Events
@@ -194,14 +245,37 @@ Evidence frame URLs can be opened directly in a browser:
 http://127.0.0.1:8000/frames/abc123/frame_0001_18s.jpg
 ```
 
+### 6. List Inspection History
+
+```powershell
+curl.exe http://127.0.0.1:8000/inspections
+```
+
+### 7. Load One Previous Inspection
+
+```powershell
+curl.exe http://127.0.0.1:8000/inspections/abc123
+```
+
+This returns:
+
+- `metadata`
+- `events`
+- `report`
+- `qa_history`
+
 ## Local Storage
 
 The MVP uses local disk storage, not a database.
 
 ```text
 SafeSight_server/uploads/  uploaded videos
-SafeSight_server/frames/   extracted evidence frames
-SafeSight_server/events/   JSON event files
+SafeSight_server/storage/inspections/index.json
+SafeSight_server/storage/inspections/{video_id}/metadata.json
+SafeSight_server/storage/inspections/{video_id}/events.json
+SafeSight_server/storage/inspections/{video_id}/report.json
+SafeSight_server/storage/inspections/{video_id}/qa_history.json
+SafeSight_server/storage/inspections/{video_id}/frames/
 ```
 
 ## Model
