@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+
+.env
+.ultralytics/
+*.pt
+
+uploads/*
+frames/*
+events/*
+
+!uploads/.gitkeep
+!frames/.gitkeep
+!events/.gitkeep
