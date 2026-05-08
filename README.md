@@ -30,8 +30,8 @@ SafeSight/
     schemas/
     models/
       best.pt
-    uploads/
     storage/
+      uploads/
       inspections/
         index.json
         {video_id}/
@@ -110,6 +110,42 @@ http://127.0.0.1:8000/openapi.json
 ```
 
 Use `/docs` as the Swagger documentation for the frontend developer. It includes request bodies, response schemas, endpoint descriptions, and evidence-frame image URLs.
+
+## Run Backend With Docker
+
+From the project root:
+
+```powershell
+docker compose up --build
+```
+
+The containerized backend runs at:
+
+```text
+http://127.0.0.1:7860
+```
+
+Health check:
+
+```powershell
+curl.exe http://127.0.0.1:7860/health
+```
+
+The compose setup mounts these local folders into the container so test data can survive container restarts:
+
+```text
+SafeSight_server/storage/
+SafeSight_server/frames/
+SafeSight_server/events/
+SafeSight_server/models/
+```
+
+For Hugging Face Spaces Docker deployment, the backend image listens on port `7860`.
+Make sure the custom YOLO model is available at:
+
+```text
+SafeSight_server/models/best.pt
+```
 
 ## Frontend Setup
 
@@ -269,7 +305,7 @@ This returns:
 The MVP uses local disk storage, not a database.
 
 ```text
-SafeSight_server/uploads/  uploaded videos
+SafeSight_server/storage/uploads/  uploaded videos
 SafeSight_server/storage/inspections/index.json
 SafeSight_server/storage/inspections/{video_id}/metadata.json
 SafeSight_server/storage/inspections/{video_id}/events.json

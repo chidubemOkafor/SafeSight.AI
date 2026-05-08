@@ -1,0 +1,24 @@
+services:
+  safesight-api:
+    build:
+      context: ./SafeSight_server
+      dockerfile: Dockerfile
+    container_name: safesight-api
+    env_file:
+      - ./SafeSight_server/.env
+    environment:
+      PORT: 7860
+      ULTRALYTICS_CONFIG_DIR: /app/.ultralytics
+    ports:
+      - "7860:7860"
+    volumes:
+      - ./SafeSight_server/storage:/app/storage
+      - ./SafeSight_server/frames:/app/frames
+      - ./SafeSight_server/events:/app/events
+      - ./SafeSight_server/models:/app/models:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:7860/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s

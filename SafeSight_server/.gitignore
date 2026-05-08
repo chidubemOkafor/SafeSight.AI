@@ -8,9 +8,11 @@ __pycache__/
 uploads/*
 frames/*
 events/*
+storage/uploads/*
 storage/inspections/*
 
 !uploads/.gitkeep
 !frames/.gitkeep
 !events/.gitkeep
+!storage/uploads/.gitkeep
 !storage/inspections/.gitkeep

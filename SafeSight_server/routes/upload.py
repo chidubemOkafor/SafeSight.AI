@@ -23,7 +23,7 @@ def upload_root() -> MessageResponse:
     summary="Upload MP4 video",
     description=(
         "Accepts a multipart form upload with key `file`. "
-        "Only `.mp4` files are accepted. The file is saved to `SafeSight_server/uploads/` "
+        "Only `.mp4` files are accepted. The file is saved to `SafeSight_server/storage/uploads/` "
         "and an inspection record is created in `storage/inspections/{video_id}/`."
     ),
     responses={

@@ -25,10 +25,12 @@ SafeSight_server/models/*.pt
 SafeSight_server/uploads/*
 SafeSight_server/frames/*
 SafeSight_server/events/*
+SafeSight_server/storage/uploads/*
 SafeSight_server/storage/inspections/*
 !SafeSight_server/uploads/.gitkeep
 !SafeSight_server/frames/.gitkeep
 !SafeSight_server/events/.gitkeep
+!SafeSight_server/storage/uploads/.gitkeep
 !SafeSight_server/storage/inspections/.gitkeep
 
 # Downloaded datasets

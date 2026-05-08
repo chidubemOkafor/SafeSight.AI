@@ -14,6 +14,7 @@ from core.config import (
     FRAMES_DIR,
     INSPECTIONS_DIR,
     INSPECTIONS_INDEX_FILE,
+    LEGACY_UPLOAD_DIR,
     UPLOAD_DIR,
     ensure_storage_dirs,
 )
@@ -270,6 +271,7 @@ def _sync_legacy_inspections() -> None:
     ensure_storage_dirs()
     video_ids: set[str] = set()
     video_ids.update(_video_id_from_upload(upload_path) for upload_path in UPLOAD_DIR.glob("*.mp4"))
+    video_ids.update(_video_id_from_upload(upload_path) for upload_path in LEGACY_UPLOAD_DIR.glob("*.mp4"))
     video_ids.update(event_path.stem for event_path in EVENTS_DIR.glob("*.json"))
 
     for video_id in video_ids:
@@ -310,6 +312,8 @@ def _sync_legacy_inspection(video_id: str) -> None:
 
 def _find_legacy_upload(video_id: str) -> Path | None:
     matches = sorted(UPLOAD_DIR.glob(f"{video_id}_*.mp4"))
+    if not matches:
+        matches = sorted(LEGACY_UPLOAD_DIR.glob(f"{video_id}_*.mp4"))
     return matches[0] if matches else None
 
 

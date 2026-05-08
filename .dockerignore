@@ -1,0 +1,50 @@
+# Git and editor files
+.git/
+.vscode/
+.idea/
+
+# Secrets
+.env
+.env.*
+**/.env
+**/.env.*
+!**/.env.example
+
+# Python caches and virtual environments
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+venv/
+.venv/
+env/
+SafeSight_server/venv/
+
+# Node artifacts
+node_modules/
+SafeSight_client/node_modules/
+SafeSight_client/.next/
+SafeSight_client/out/
+
+# Backend runtime data
+SafeSight_server/.ultralytics/
+SafeSight_server/uploads/*
+SafeSight_server/frames/*
+SafeSight_server/events/*
+SafeSight_server/storage/uploads/*
+SafeSight_server/storage/inspections/*
+!SafeSight_server/storage/uploads/.gitkeep
+!SafeSight_server/storage/inspections/.gitkeep
+
+# Downloaded datasets
+download_dataset/
+
+# Model cache files. Keep the production custom YOLO model if present.
+SafeSight_server/*.pt
+!SafeSight_server/models/best.pt
+
+# OS files
+.DS_Store
+Thumbs.db

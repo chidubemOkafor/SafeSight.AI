@@ -8,7 +8,7 @@ from uuid import uuid4
 import cv2
 from fastapi import UploadFile
 
-from core.config import BASE_DIR, UPLOAD_DIR, ensure_storage_dirs
+from core.config import BASE_DIR, LEGACY_UPLOAD_DIR, UPLOAD_DIR, ensure_storage_dirs
 from services.inspection_service import create_inspection, get_inspection_frames_dir, save_metadata
 
 
@@ -58,6 +58,8 @@ def save_uploaded_video(file: UploadFile) -> dict[str, str]:
 def find_uploaded_video(video_id: str) -> Path | None:
     ensure_storage_dirs()
     matches = sorted(UPLOAD_DIR.glob(f"{video_id}_*.mp4"))
+    if not matches:
+        matches = sorted(LEGACY_UPLOAD_DIR.glob(f"{video_id}_*.mp4"))
     return matches[0] if matches else None
 
 
