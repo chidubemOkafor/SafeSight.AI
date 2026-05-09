@@ -22,3 +22,21 @@ services:
       timeout: 10s
       retries: 3
       start_period: 45s
+
+  safesight-client:
+    build:
+      context: ./SafeSight_client
+      dockerfile: Dockerfile
+      args:
+        # Browser-side var — must be the address the user's browser can reach the API on.
+        # Override with: NEXT_PUBLIC_API_BASE_URL=http://<your-server-ip>:7860 docker compose up
+        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:7860}
+    container_name: safesight-client
+    ports:
+      - "3000:3000"
+    depends_on:
+      safesight-api:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+    restart: unless-stopped
