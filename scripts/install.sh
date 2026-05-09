@@ -73,8 +73,7 @@ fi
 # ── 5. Python dependencies ────────────────────────────────────────────────────
 
 log "Installing Python dependencies (this may take a few minutes)…"
-"$SERVER_DIR/venv/bin/pip" install --upgrade pip --quiet
-"$SERVER_DIR/venv/bin/pip" install -r "$SERVER_DIR/requirements.txt" --quiet
+"$SERVER_DIR/venv/bin/pip" install -r "$SERVER_DIR/requirements.txt"
 log "  Python dependencies installed."
 
 # ── 6. Node dependencies ──────────────────────────────────────────────────────

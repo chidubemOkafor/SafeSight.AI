@@ -25,7 +25,7 @@ start: ## Start the full application (backend + frontend) via start script
 
 backend-start: ## Start the FastAPI backend (port 8000, hot-reload)
 	@cd SafeSight_server && \
-	  venv/bin/uvicorn main:app --host 127.0.0.1 --port 8000 --reload
+	  uvicorn main:app --host 127.0.0.1 --port 8000 --reload
 
 frontend-start: ## Start the Next.js frontend dev server (port 3000)
 	@cd SafeSight_client && npm run dev
