@@ -1,10 +1,32 @@
-import type { InspectionSummary, InspectionDetail } from '@/types';
+import type { InspectionSummary, InspectionDetail, SafetyEvent } from '@/types';
 
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://127.0.0.1:8000';
 
 export function frameUrl(videoId: string, frameName: string): string {
   return `${API_BASE_URL}/frames/${videoId}/${frameName}`;
+}
+
+/** Converts a raw frame_path like "frames/{id}/{name}.jpg" to a full URL. */
+export function framePathToUrl(framePath: string): string {
+  const parts = framePath.replace(/\\/g, '/').split('/');
+  if (parts.length >= 3 && parts[0] === 'frames') {
+    return `${API_BASE_URL}/frames/${parts[1]}/${parts[2]}`;
+  }
+  return `${API_BASE_URL}/${framePath}`;
+}
+
+export async function checkHealth(): Promise<{ status: string }> {
+  const res = await fetch(`${API_BASE_URL}/health`);
+  if (!res.ok) throw new Error(`Health check failed: ${res.status}`);
+  return res.json() as Promise<{ status: string }>;
+}
+
+export async function getEvents(videoId: string): Promise<SafetyEvent[]> {
+  const res = await fetch(`${API_BASE_URL}/events/${videoId}`);
+  if (!res.ok) throw new Error(`Failed to fetch events: ${res.status}`);
+  const data = await res.json() as { events: SafetyEvent[] };
+  return data.events;
 }
 
 export async function listInspections(): Promise<InspectionSummary[]> {
