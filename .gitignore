@@ -22,6 +22,7 @@ env/
 SafeSight_server/.ultralytics/
 SafeSight_server/*.pt
 SafeSight_server/models/*.pt
+!SafeSight_server/models/best.pt
 SafeSight_server/uploads/*
 SafeSight_server/frames/*
 SafeSight_server/events/*
