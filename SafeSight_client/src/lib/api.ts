@@ -10,8 +10,9 @@ export function frameUrl(videoId: string, frameName: string): string {
 /** Converts a raw frame_path like "frames/{id}/{name}.jpg" to a full URL. */
 export function framePathToUrl(framePath: string): string {
   const parts = framePath.replace(/\\/g, '/').split('/');
-  if (parts.length >= 3 && parts[0] === 'frames') {
-    return `${API_BASE_URL}/frames/${parts[1]}/${parts[2]}`;
+  const frameIndex = parts.indexOf('frames');
+  if (frameIndex >= 0 && parts.length > frameIndex + 2) {
+    return `${API_BASE_URL}/frames/${parts[frameIndex + 1]}/${parts[frameIndex + 2]}`;
   }
   return `${API_BASE_URL}/${framePath}`;
 }
