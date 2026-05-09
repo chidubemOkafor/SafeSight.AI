@@ -44,11 +44,18 @@ This will:
 
 ### 2. Configure
 
-Edit `SafeSight_server/.env` and set your token:
+Edit `SafeSight_server/.env` and point the Q&A client at the endpoint you want:
 
 ```env
-HF_TOKEN=your_huggingface_token_here
-HF_MODEL=Qwen/Qwen3-Coder-480B-A35B-Instruct
+# Local machine: Hugging Face router
+QWEN_URL=https://router.huggingface.co/v1
+QWEN_KEY=your_huggingface_token_here
+QWEN_MODEL=Qwen/Qwen2.5-VL-7B-Instruct
+
+# AMD droplet: your deployed OpenAI-compatible Qwen server
+# QWEN_URL=http://localhost:8000/v1
+# QWEN_KEY=dummy
+# QWEN_MODEL=Qwen/Qwen2.5-VL-7B-Instruct
 ```
 
 Place your YOLO model:
@@ -129,8 +136,13 @@ make type-check     Run TypeScript type-checking on the frontend
 
 | Variable | Required | Description |
 |---|---|---|
-| `HF_TOKEN` | Yes (for Q&A) | HuggingFace API token |
-| `HF_MODEL` | No | Model ID (default: `Qwen/Qwen3-Coder-480B-A35B-Instruct`) |
+| `QWEN_URL` | No | OpenAI-compatible base URL for Qwen. Default: Hugging Face router |
+| `QWEN_KEY` | No* | API key for the selected endpoint |
+| `QWEN_MODEL` | No | Model ID used for Q&A |
+| `HF_TOKEN` | Yes* | Backward-compatible alias for `QWEN_KEY` |
+| `HF_MODEL` | No* | Backward-compatible alias for `QWEN_MODEL` |
+
+`*` Required only when you are using the Hugging Face router and not a local server that ignores auth.
 
 ### Frontend — `SafeSight_client/.env.local`
 

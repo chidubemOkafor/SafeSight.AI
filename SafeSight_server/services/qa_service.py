@@ -9,8 +9,8 @@ from typing import Any
 from core.config import load_env_file
 
 
-HF_ROUTER_BASE_URL = "https://router.huggingface.co/v1"
-DEFAULT_HF_MODEL = "Qwen/Qwen3-Coder-480B-A35B-Instruct"
+DEFAULT_QWEN_BASE_URL = "https://router.huggingface.co/v1"
+DEFAULT_QWEN_MODEL = "Qwen/Qwen2.5-VL-7B-Instruct"
 CONCERN_EVENT_TYPES = {"no_helmet", "no_vest"}
 EVENT_LABELS = {
     "no_helmet": "missing hardhats",
@@ -30,20 +30,21 @@ class QAProviderError(RuntimeError):
 @lru_cache(maxsize=1)
 def get_huggingface_client() -> Any:
     load_env_file()
-    token = os.getenv("HF_TOKEN")
-    if not token:
-        raise QAConfigurationError("HF_TOKEN is not set.")
+    base_url = os.getenv("QWEN_URL", os.getenv("HF_BASE_URL", DEFAULT_QWEN_BASE_URL))
+    token = os.getenv("QWEN_KEY", os.getenv("HF_TOKEN"))
+    if not token and base_url.rstrip("/") == DEFAULT_QWEN_BASE_URL:
+        raise QAConfigurationError("HF_TOKEN or QWEN_KEY is not set.")
 
     from openai import OpenAI
 
     return OpenAI(
-        base_url=HF_ROUTER_BASE_URL,
-        api_key=token,
+        base_url=base_url,
+        api_key=token or "dummy",
     )
 
 
 def answer_question(video_id: str, question: str, events_payload: dict, base_url: str) -> dict:
-    model = os.getenv("HF_MODEL", DEFAULT_HF_MODEL)
+    model = os.getenv("QWEN_MODEL", os.getenv("HF_MODEL", DEFAULT_QWEN_MODEL))
     concern_payload = _build_concern_payload(video_id, events_payload, base_url)
     events = concern_payload["events"]
     event_count = len(events)
