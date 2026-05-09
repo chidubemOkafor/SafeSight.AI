@@ -5,8 +5,9 @@ import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar';
 import InspectionView from '@/components/InspectionView';
 import UploadModal from '@/components/UploadModal';
-import { listInspections, getInspection, inspectVideo } from '@/lib/api';
-import { getStoredVideoIds, addVideoId } from '@/lib/storage';
+import { listInspections, getInspection, inspectVideo, deleteInspection } from '@/lib/api';
+import { getStoredVideoIds, addVideoId, removeVideoId } from '@/lib/storage';
+import Toast from '@/components/Toast';
 import type { InspectionSummary, InspectionDetail, TabId } from '@/types';
 
 export default function Dashboard() {
@@ -23,6 +24,7 @@ export default function Dashboard() {
   const [inspecting, setInspecting] = useState(false);
   const [inspectError, setInspectError] = useState<string | null>(null);
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
 
   const loadInspections = useCallback(async () => {
     const storedIds = getStoredVideoIds();
@@ -34,6 +36,8 @@ export default function Dashboard() {
         return;
       }
       const all = await listInspections();
+      const serverIds = new Set(all.map((i) => i.video_id));
+      storedIds.filter((id) => !serverIds.has(id)).forEach(removeVideoId);
       setInspections(all.filter((i) => storedIds.includes(i.video_id)));
     } catch (err) {
       const isNetwork = err instanceof TypeError && err.message.toLowerCase().includes('fetch');
@@ -74,11 +78,26 @@ export default function Dashboard() {
       await inspectVideo(selectedId);
       await loadDetail(selectedId);
       await loadInspections();
+      setToast('Inspection complete!');
     } catch (err) {
       setInspectError(err instanceof Error ? err.message : 'Inspection failed. Please try again.');
     } finally {
       setInspecting(false);
     }
+  }
+
+  async function handleDelete() {
+    if (!selectedId) return;
+    const id = selectedId;
+    setSelectedId(null);
+    setSelectedDetail(null);
+    try {
+      await deleteInspection(id);
+    } catch {
+      // best-effort — remove from local state regardless
+    }
+    removeVideoId(id);
+    await loadInspections();
   }
 
   async function handleUploadSuccess(videoId: string) {
@@ -129,6 +148,7 @@ export default function Dashboard() {
           onInspect={handleInspect}
           inspecting={inspecting}
           inspectError={inspectError}
+          onDelete={handleDelete}
         />
       </div>
 
@@ -138,6 +158,7 @@ export default function Dashboard() {
           onSuccess={handleUploadSuccess}
         />
       )}
+      {toast && <Toast message={toast} onDismiss={() => setToast(null)} />}
     </div>
   );
 }

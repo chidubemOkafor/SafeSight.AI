@@ -118,15 +118,18 @@ function MobileStrip({ inspections, selectedId, onSelect, loading }: SidebarSubP
   }
 
   return (
-    <div className="flex gap-2 overflow-x-auto px-4 py-3" style={{ scrollbarWidth: 'none' }}>
-      {inspections.map((inspection) => (
-        <MobileChip
-          key={inspection.video_id}
-          inspection={inspection}
-          selected={selectedId === inspection.video_id}
-          onSelect={onSelect}
-        />
-      ))}
+    <div className="relative">
+      <div className="flex gap-2 overflow-x-auto px-4 py-3" style={{ scrollbarWidth: 'none' }}>
+        {inspections.map((inspection) => (
+          <MobileChip
+            key={inspection.video_id}
+            inspection={inspection}
+            selected={selectedId === inspection.video_id}
+            onSelect={onSelect}
+          />
+        ))}
+      </div>
+      <div className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-white" />
     </div>
   );
 }

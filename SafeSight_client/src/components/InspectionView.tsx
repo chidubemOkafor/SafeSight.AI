@@ -1,7 +1,10 @@
 'use client';
 
+import { useState } from 'react';
 import EventsTab from '@/components/EventsTab';
 import AskTab from '@/components/AskTab';
+import FrameModal from '@/components/FrameModal';
+import { framePathToUrl } from '@/lib/api';
 import type { InspectionDetail, TabId } from '@/types';
 
 const TABS: { id: TabId; label: string }[] = [
@@ -18,6 +21,7 @@ interface InspectionViewProps {
   onInspect: () => void;
   inspecting: boolean;
   inspectError: string | null;
+  onDelete: () => void;
 }
 
 export default function InspectionView({
@@ -28,6 +32,7 @@ export default function InspectionView({
   onInspect,
   inspecting,
   inspectError,
+  onDelete,
 }: InspectionViewProps) {
   if (loading) return <LoadingState />;
   if (!detail) return <EmptyState />;
@@ -37,7 +42,13 @@ export default function InspectionView({
 
   return (
     <main className="flex flex-1 min-w-0 flex-col overflow-hidden">
-      <InspectionOverview detail={detail} status={status} />
+      <InspectionOverview
+        detail={detail}
+        status={status}
+        onInspect={onInspect}
+        inspecting={inspecting}
+        onDelete={onDelete}
+      />
 
       {needsInspection && (
         <InspectBanner
@@ -59,7 +70,7 @@ export default function InspectionView({
         )}
         {activeTab === 'report' && <ReportPane report={detail.report} />}
         {activeTab === 'ask' && (
-          <AskTab videoId={detail.video_id} initialHistory={detail.qa_history} />
+          <AskTab key={detail.video_id} videoId={detail.video_id} initialHistory={detail.qa_history} />
         )}
       </div>
     </main>
@@ -71,10 +82,17 @@ export default function InspectionView({
 function InspectionOverview({
   detail,
   status,
+  onInspect,
+  inspecting,
+  onDelete,
 }: {
   detail: InspectionDetail;
   status: string;
+  onInspect: () => void;
+  inspecting: boolean;
+  onDelete: () => void;
 }) {
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const name =
     metaStr(detail.metadata, 'original_filename') ||
     metaStr(detail.metadata, 'filename') ||
@@ -94,25 +112,74 @@ function InspectionOverview({
           <h1 className="mt-0.5 truncate text-lg font-black tracking-tight text-[var(--ink)] sm:text-xl">
             {name}
           </h1>
-          <p className="mt-0.5 font-mono text-[11px] text-black/30">{detail.video_id}</p>
+          <p className="mt-0.5 font-mono text-[11px] text-black/30">{detail.video_id.slice(0, 8)}…</p>
         </div>
 
-        <span
-          className={[
-            'flex-shrink-0 rounded-full px-3 py-1 text-xs font-black uppercase tracking-wide',
-            status === 'inspected' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700',
-          ].join(' ')}
-        >
-          {status}
-        </span>
+        <div className="flex flex-shrink-0 items-center gap-2">
+          {status === 'inspected' && !confirmDelete && (
+            <button
+              onClick={onInspect}
+              disabled={inspecting}
+              title="Re-run inspection"
+              className="flex items-center gap-1.5 rounded-xl border border-black/12 px-3 py-1.5 text-xs font-bold text-black/50 transition hover:bg-black/4 disabled:opacity-40"
+            >
+              {inspecting ? (
+                <Spinner size={11} />
+              ) : (
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                  <polyline points="1 4 1 10 7 10" />
+                  <path d="M3.51 15a9 9 0 1 0 .49-3" />
+                </svg>
+              )}
+              {inspecting ? 'Inspecting…' : 'Re-inspect'}
+            </button>
+          )}
+
+          {confirmDelete ? (
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-bold text-red-600">Delete?</span>
+              <button
+                onClick={() => setConfirmDelete(false)}
+                className="rounded-lg border border-black/12 px-2.5 py-1 text-xs font-bold text-black/50 transition hover:bg-black/4"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={onDelete}
+                className="rounded-lg bg-red-600 px-2.5 py-1 text-xs font-bold text-white transition hover:bg-red-700"
+              >
+                Delete
+              </button>
+            </div>
+          ) : (
+            <>
+              <span
+                className={[
+                  'rounded-full px-3 py-1 text-xs font-black uppercase tracking-wide',
+                  status === 'inspected' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700',
+                ].join(' ')}
+              >
+                {status}
+              </span>
+              <button
+                onClick={() => setConfirmDelete(true)}
+                className="grid h-7 w-7 place-items-center rounded-xl text-black/30 transition hover:bg-red-50 hover:text-red-500"
+                aria-label="Delete inspection"
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <polyline points="3 6 5 6 21 6" />
+                  <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                  <path d="M10 11v6M14 11v6" />
+                  <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                </svg>
+              </button>
+            </>
+          )}
+        </div>
       </div>
 
       <div className="mt-3 flex flex-wrap gap-2">
-        <Stat
-          label="Safety Concerns"
-          value={String(concernCount)}
-          highlight={concernCount > 0}
-        />
+        <Stat label="Safety Concerns" value={String(concernCount)} highlight={concernCount > 0} />
         <Stat label="Total Events" value={String(eventCount)} />
         <Stat label="Q&A Sessions" value={String(qaCount)} />
         {updatedAt && <Stat label="Last Updated" value={formatDate(updatedAt)} />}
@@ -121,7 +188,7 @@ function InspectionOverview({
   );
 }
 
-// ── Inspect banner (Tasks 5 & 6) ─────────────────────────────────────────────
+// ── Inspect banner ────────────────────────────────────────────────────────────
 
 function InspectBanner({
   onInspect,
@@ -196,42 +263,91 @@ function TabBar({ activeTab, onTabChange }: { activeTab: TabId; onTabChange: (t:
 // ── Tab panes ─────────────────────────────────────────────────────────────────
 
 function ReportPane({ report }: { report: InspectionDetail['report'] }) {
+  const [activeFrame, setActiveFrame] = useState<{
+    frameUrl: string;
+    timestamp: string;
+    eventName: string;
+    risk: string;
+  } | null>(null);
+
   if (!report) {
-    return (
-      <EmptyPane text="Run an inspection to generate the AI safety report." />
-    );
+    return <EmptyPane text="Run an inspection to generate the AI safety report." />;
   }
+
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <ReportStat label="Total Events" value={String(report.summary.total_events)} />
-        <ReportStat
-          label="Concerns"
-          value={String(report.summary.total_safety_concerns)}
-          alert={report.summary.total_safety_concerns > 0}
-        />
-        {Object.entries(report.summary.risk_counts).map(([risk, count]) => (
-          <ReportStat key={risk} label={`${risk} Risk`} value={String(count)} alert={risk === 'High'} />
+    <>
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <ReportStat label="Total Events" value={String(report.summary.total_events)} />
+          <ReportStat
+            label="Concerns"
+            value={String(report.summary.total_safety_concerns)}
+            alert={report.summary.total_safety_concerns > 0}
+          />
+          {Object.entries(report.summary.risk_counts).map(([risk, count]) => (
+            <ReportStat key={risk} label={`${risk} Risk`} value={String(count)} alert={risk === 'High'} />
+          ))}
+        </div>
+
+        {report.findings.map((finding, i) => (
+          <div key={i} className="rounded-2xl border border-black/8 bg-white p-4">
+            <div className="flex items-center gap-2">
+              <RiskBadge risk={finding.risk} />
+              <p className="font-bold text-[var(--ink)]">{finding.event}</p>
+              <p className="ml-auto text-xs text-black/40">{finding.count}× detected</p>
+            </div>
+            <p className="mt-2 text-sm text-black/65 leading-relaxed">{finding.explanation}</p>
+            <p className="mt-2 rounded-xl bg-[var(--background)] px-3 py-2 text-xs font-medium text-black/60">
+              {finding.recommendation}
+            </p>
+            <p className="mt-2 text-xs text-black/35">
+              {finding.first_seen} – {finding.last_seen}
+            </p>
+            {finding.evidence_frames.length > 0 && (
+              <div className="mt-3 border-t border-black/6 pt-3">
+                <p className="mb-2 text-[10px] font-black uppercase tracking-[0.18em] text-black/30">
+                  Evidence Frames
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {finding.evidence_frames.map((ef, j) => (
+                    <button
+                      key={j}
+                      onClick={() =>
+                        setActiveFrame({
+                          frameUrl: framePathToUrl(ef.frame_path),
+                          timestamp: ef.timestamp,
+                          eventName: finding.event,
+                          risk: finding.risk,
+                        })
+                      }
+                      className="flex items-center gap-1.5 rounded-xl border border-black/10 bg-[var(--background)] px-3 py-1.5 text-xs font-bold text-[var(--ink)] transition hover:bg-black/8"
+                    >
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-black/40">
+                        <rect x="3" y="3" width="18" height="18" rx="2" />
+                        <circle cx="8.5" cy="8.5" r="1.5" />
+                        <polyline points="21 15 16 10 5 21" />
+                      </svg>
+                      <span>{ef.timestamp}</span>
+                      <span className="text-black/40">{Math.round(ef.confidence * 100)}%</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         ))}
       </div>
 
-      {report.findings.map((finding, i) => (
-        <div key={i} className="rounded-2xl border border-black/8 bg-white p-4">
-          <div className="flex items-center gap-2">
-            <RiskBadge risk={finding.risk} />
-            <p className="font-bold text-[var(--ink)]">{finding.event}</p>
-            <p className="ml-auto text-xs text-black/40">{finding.count}× detected</p>
-          </div>
-          <p className="mt-2 text-sm text-black/65 leading-relaxed">{finding.explanation}</p>
-          <p className="mt-2 rounded-xl bg-[var(--background)] px-3 py-2 text-xs font-medium text-black/60">
-            {finding.recommendation}
-          </p>
-          <p className="mt-2 text-xs text-black/35">
-            {finding.first_seen} – {finding.last_seen}
-          </p>
-        </div>
-      ))}
-    </div>
+      {activeFrame && (
+        <FrameModal
+          frameUrl={activeFrame.frameUrl}
+          timestamp={activeFrame.timestamp}
+          eventName={activeFrame.eventName}
+          risk={activeFrame.risk}
+          onClose={() => setActiveFrame(null)}
+        />
+      )}
+    </>
   );
 }
 
