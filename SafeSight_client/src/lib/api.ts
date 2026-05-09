@@ -72,3 +72,31 @@ export async function askQuestion(videoId: string, question: string): Promise<As
   if (!res.ok) throw new Error(`Ask failed: ${res.status}`);
   return res.json() as Promise<AskResponse>;
 }
+
+export function uploadVideoWithProgress(
+  file: File,
+  onProgress: (percent: number) => void,
+): Promise<{ video_id: string; filename: string }> {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    const form = new FormData();
+    form.append('file', file);
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable) onProgress(Math.round((e.loaded / e.total) * 100));
+    };
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          resolve(JSON.parse(xhr.responseText) as { video_id: string; filename: string });
+        } catch {
+          reject(new Error('Invalid response from server'));
+        }
+      } else {
+        reject(new Error(`Upload failed: ${xhr.status}`));
+      }
+    };
+    xhr.onerror = () => reject(new Error('Network error during upload'));
+    xhr.open('POST', `${API_BASE_URL}/upload`);
+    xhr.send(form);
+  });
+}

@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { askQuestion } from '@/lib/api';
+import { askQuestion, framePathToUrl } from '@/lib/api';
 import { RiskBadge, Spinner } from '@/components/InspectionView';
 import FrameModal from '@/components/FrameModal';
 import type { AskEvidenceItem, QAEntry } from '@/types';
@@ -155,7 +155,7 @@ function QACard({ entry }: { entry: LocalQAEntry }) {
 
       {frameTarget && (
         <FrameModal
-          frameUrl={frameTarget.frame_url}
+          frameUrl={framePathToUrl(frameTarget.frame_path)}
           timestamp={frameTarget.timestamp}
           eventName={frameTarget.event}
           risk={frameTarget.risk}
