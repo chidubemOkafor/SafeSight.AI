@@ -1,6 +1,7 @@
 'use client';
 
 import EventsTab from '@/components/EventsTab';
+import AskTab from '@/components/AskTab';
 import type { InspectionDetail, TabId } from '@/types';
 
 const TABS: { id: TabId; label: string }[] = [
@@ -57,7 +58,9 @@ export default function InspectionView({
           />
         )}
         {activeTab === 'report' && <ReportPane report={detail.report} />}
-        {activeTab === 'ask' && <AskPane />}
+        {activeTab === 'ask' && (
+          <AskTab videoId={detail.video_id} initialHistory={detail.qa_history} />
+        )}
       </div>
     </main>
   );
@@ -195,7 +198,7 @@ function TabBar({ activeTab, onTabChange }: { activeTab: TabId; onTabChange: (t:
 function ReportPane({ report }: { report: InspectionDetail['report'] }) {
   if (!report) {
     return (
-      <EmptyPane icon="report" text="Run an inspection to generate the AI safety report." />
+      <EmptyPane text="Run an inspection to generate the AI safety report." />
     );
   }
   return (
@@ -232,10 +235,6 @@ function ReportPane({ report }: { report: InspectionDetail['report'] }) {
   );
 }
 
-function AskPane() {
-  return <EmptyPane icon="ask" text="Ask questions about this inspection using natural language." />;
-}
-
 function ReportStat({ label, value, alert }: { label: string; value: string; alert?: boolean }) {
   return (
     <div className="rounded-2xl border border-black/8 bg-[var(--background)] px-3 py-2.5">
@@ -263,22 +262,16 @@ export function RiskBadge({ risk }: { risk: string | undefined }) {
   );
 }
 
-function EmptyPane({ icon, text }: { icon: 'report' | 'ask'; text: string }) {
+function EmptyPane({ text }: { text: string }) {
   return (
     <div className="flex h-full min-h-40 flex-col items-center justify-center rounded-3xl border-2 border-dashed border-black/10 py-16 text-center">
       <div className="mb-3 grid h-12 w-12 place-items-center rounded-2xl bg-black/5">
-        {icon === 'report' ? (
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-black/30">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-            <polyline points="14 2 14 8 20 8" />
-            <line x1="8" y1="13" x2="16" y2="13" />
-            <line x1="8" y1="17" x2="16" y2="17" />
-          </svg>
-        ) : (
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-black/30">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-          </svg>
-        )}
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-black/30">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <polyline points="14 2 14 8 20 8" />
+          <line x1="8" y1="13" x2="16" y2="13" />
+          <line x1="8" y1="17" x2="16" y2="17" />
+        </svg>
       </div>
       <p className="max-w-xs text-sm text-black/35 leading-relaxed">{text}</p>
     </div>
