@@ -83,6 +83,7 @@ def extract_frames(video_id: str, video_path: Path) -> list[dict[str, str | floa
             "timestamp": _format_timestamp(float(frame["timestamp_seconds"])),
             "timestamp_seconds": float(frame["timestamp_seconds"]),
             "frame_path": f"frames/{video_id}/{Path(str(frame['path'])).name}",
+            "source_path": str(frame["path"]),
         }
         for frame in metadata["frames"]
     ]

@@ -2,6 +2,7 @@
 
 import os
 from functools import lru_cache
+from pathlib import Path
 from typing import Any
 
 from core.config import BASE_DIR, ULTRALYTICS_CONFIG_DIR, ensure_storage_dirs
@@ -31,7 +32,10 @@ def detect_people_in_frames(frames: list[dict[str, str | float]]) -> list[dict[s
 
     for frame in frames:
         frame_path = str(frame["frame_path"])
-        absolute_frame_path = BASE_DIR / frame_path
+        absolute_frame_path = _resolve_frame_source_path(str(frame.get("source_path", frame_path)))
+        if not absolute_frame_path.exists():
+            raise FileNotFoundError(f"Extracted frame not found at {absolute_frame_path}")
+
         results = model.predict(
             source=str(absolute_frame_path),
             classes=target_class_ids,
@@ -58,6 +62,13 @@ def detect_people_in_frames(frames: list[dict[str, str | float]]) -> list[dict[s
                 )
 
     return detections
+
+
+def _resolve_frame_source_path(frame_path: str) -> Path:
+    path = Path(frame_path)
+    if path.is_absolute():
+        return path
+    return BASE_DIR / path
 
 
 def _get_class_ids(names: dict[int, str], class_names: tuple[str, ...]) -> list[int]:
