@@ -62,6 +62,27 @@ export interface QAEntry {
   model: string;
 }
 
+export interface AskEvidenceItem {
+  timestamp: string;
+  event_type: string;
+  event: string;
+  risk: string;
+  explanation: string;
+  recommendation: string;
+  confidence: number;
+  frame_path: string;
+  frame_url: string;
+}
+
+export interface AskResponse {
+  video_id: string;
+  question: string;
+  answer: string;
+  model: string;
+  event_count: number;
+  evidence: AskEvidenceItem[];
+}
+
 export interface InspectionDetail {
   video_id: string;
   metadata: Record<string, unknown>;
