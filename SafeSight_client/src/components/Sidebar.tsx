@@ -80,11 +80,7 @@ function InspectionItem({
 
         <div className="mt-1.5 flex flex-wrap items-center gap-2">
           <StatusBadge status={inspection.status} />
-          {inspection.concern_count > 0 && (
-            <span className="text-[11px] font-bold text-red-500">
-              {inspection.concern_count} concern{inspection.concern_count !== 1 ? 's' : ''}
-            </span>
-          )}
+          <SafetyStatus inspection={inspection} />
         </div>
 
         {inspection.updated_at && (
@@ -105,6 +101,24 @@ function StatusBadge({ status }: { status: string }) {
       ].join(' ')}
     >
       {status}
+    </span>
+  );
+}
+
+function SafetyStatus({ inspection }: { inspection: InspectionSummary }) {
+  if (inspection.status !== 'inspected') return null;
+  if (inspection.concern_count === 0) {
+    return (
+      <span className="flex items-center gap-1 text-[11px] font-bold text-emerald-600">
+        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+        Safe
+      </span>
+    );
+  }
+  return (
+    <span className="flex items-center gap-1 text-[11px] font-bold text-red-500">
+      <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
+      {inspection.concern_count} violation{inspection.concern_count !== 1 ? 's' : ''}
     </span>
   );
 }
