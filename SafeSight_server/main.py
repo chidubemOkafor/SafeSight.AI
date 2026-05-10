@@ -16,7 +16,8 @@ ensure_storage_dirs()
 
 
 app = FastAPI(
-    title="SafeSight API",
+    title="SafeSight AI",
+    root_path="/api",
     description=(
         "Backend API for uploading construction-site videos, inspecting them with YOLO, "
         "storing safety events, serving evidence frames, and asking questions about detected concerns."
