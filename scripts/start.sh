@@ -63,7 +63,7 @@ fi
 
 # ── Start backend ─────────────────────────────────────────────────────────────
 
-log "Starting FastAPI backend on port $BACKEND_PORT…"
+log "Starting FastAPI backend on port ${BACKEND_PORT}…"
 log "  Logs → $BACKEND_LOG"
 
 (
@@ -102,7 +102,7 @@ log "Backend is healthy (${WAITED}s)."
 
 # ── Start frontend ────────────────────────────────────────────────────────────
 
-log "Starting Next.js frontend on port $FRONTEND_PORT…"
+log "Starting Next.js frontend on port ${FRONTEND_PORT}…"
 echo ""
 
 info "┌─────────────────────────────────────────────────────────┐"
