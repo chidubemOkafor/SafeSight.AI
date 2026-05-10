@@ -57,7 +57,7 @@ export default function AskTab({ videoId, initialHistory }: AskTabProps) {
             </svg>
           </div>
           <p className="text-sm text-black/35">Ask a question about this inspection.</p>
-          <p className="mt-1 text-xs text-black/25">Try: "What safety concerns were found?" or "Should work be halted?"</p>
+          <p className="mt-1 text-xs text-black/25">Try: &quot;What safety concerns were found?&quot; or &quot;Should work be halted?&quot;</p>
         </div>
       )}
 

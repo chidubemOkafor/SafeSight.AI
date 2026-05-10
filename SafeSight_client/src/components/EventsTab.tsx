@@ -15,11 +15,10 @@ interface FrameTarget {
 
 interface EventsTabProps {
   events: SafetyEvent[];
-  videoId: string;
   needsInspection: boolean;
 }
 
-export default function EventsTab({ events, videoId, needsInspection }: EventsTabProps) {
+export default function EventsTab({ events, needsInspection }: EventsTabProps) {
   const [activeFrame, setActiveFrame] = useState<FrameTarget | null>(null);
   const violations = events.filter((e) => e.event_type !== 'person_detected');
 
@@ -41,7 +40,6 @@ export default function EventsTab({ events, videoId, needsInspection }: EventsTa
           <EventCard
             key={i}
             event={event}
-            videoId={videoId}
             onViewFrame={(target) => setActiveFrame(target)}
           />
         ))}
@@ -62,11 +60,9 @@ export default function EventsTab({ events, videoId, needsInspection }: EventsTa
 
 function EventCard({
   event,
-  videoId,
   onViewFrame,
 }: {
   event: SafetyEvent;
-  videoId: string;
   onViewFrame: (target: FrameTarget) => void;
 }) {
   const frameUrl = framePathToUrl(event.frame_path);

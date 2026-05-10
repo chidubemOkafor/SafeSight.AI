@@ -14,7 +14,7 @@ npm install
 Create `.env.local` if you need to override the backend URL:
 
 ```env
-NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:8000
+NEXT_PUBLIC_API_BASE_URL=http://129.212.188.198:8080
 ```
 
 ## Run
@@ -32,7 +32,7 @@ http://localhost:3000
 Make sure the FastAPI backend is running at:
 
 ```text
-http://127.0.0.1:8000
+http://129.212.188.198:8080
 ```
 
 ## Useful Scripts

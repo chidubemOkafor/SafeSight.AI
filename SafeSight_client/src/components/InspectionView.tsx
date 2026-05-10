@@ -64,7 +64,6 @@ export default function InspectionView({
         {activeTab === 'events' && (
           <EventsTab
             events={detail.events}
-            videoId={detail.video_id}
             needsInspection={needsInspection}
           />
         )}

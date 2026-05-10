@@ -60,7 +60,10 @@ export default function Dashboard() {
   }, []);
 
   useEffect(() => {
-    loadInspections();
+    const timeout = window.setTimeout(() => {
+      void loadInspections();
+    }, 0);
+    return () => window.clearTimeout(timeout);
   }, [loadInspections]);
 
   function handleSelect(id: string) {

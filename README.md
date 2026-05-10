@@ -148,7 +148,7 @@ make type-check     Run TypeScript type-checking on the frontend
 
 | Variable | Default | Description |
 |---|---|---|
-| `NEXT_PUBLIC_API_BASE_URL` | `http://127.0.0.1:8000` | Backend base URL (local dev) |
+| `NEXT_PUBLIC_API_BASE_URL` | `http://129.212.188.198:8080` | Backend base URL |
 
 ---
 
